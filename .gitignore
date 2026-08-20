@@ -2,6 +2,13 @@
 __pycache__/
 *.py[codz]
 *$py.class
+# virtual environement
+fruit-vision/
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
 
 # C extensions
 *.so
