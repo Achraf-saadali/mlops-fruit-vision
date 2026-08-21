@@ -1,6 +1,7 @@
 
-from yolo_fruit_vision import logger
+from yolo_fruit_vision.config.configuration import ConfigurationManager
 
 
-logger.info("f Hello")
+
+
 

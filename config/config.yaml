@@ -1,0 +1,8 @@
+
+
+data_ingestion:
+  root_dir: artifacts/data_ingestion
+  repo_id: ACH-2003/acr_fruit
+  repo_type: dataset
+  remote_dir: arcfruit/raw
+  private: false

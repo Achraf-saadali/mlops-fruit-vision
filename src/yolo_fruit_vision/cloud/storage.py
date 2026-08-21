@@ -1,7 +1,7 @@
 
 from .huggingface_client import HuggingFaceClient
 
-
+from yolo_fruit_vision import logger
 
 
 
@@ -17,29 +17,36 @@ client_registry =  {
 
 class Storage  :
 
-    def __init__(self  ,choice : str = "Hugging_face" , local_folder :str = "")->None :
+    def __init__(self  ,choice : str = "Hugging_face" , local_folder :str = "",repo_id :str = "")->None :
 
-        self.client = client_registry.get(choice , None)
-
+        self.client = client_registry["Hugging_face"]
         self.choice = choice
-        if self.client is None : 
-
-            raise RuntimeError("No client  was attached")
-
 
         if local_folder != "":
             self.client.local_folder = local_folder
 
+        if repo_id != "":
+            self.client.repo_id = repo_id   
 
 
 
-    def download(self , path_in_repo = "raw")->None  :
 
+
+
+    def download(self , path_in_repo = "")->None  :
+        if path_in_repo == "":
+            logger.fatal(f"Unsuccessfull download : No repository was specified")
+            return None
         self.client.download(path_in_repo = path_in_repo)
 
 
     # Choice of data Upload either at raw or processed or interim ...............
-    def upload(self , path_in_repo : str = "raw")->None  :
+    def upload(self , path_in_repo : str = "")->None  :
+
+        if path_in_repo == "":
+                logger.fatal(f"Unsuccessfull upload : No repository was specified")
+                return None
+                
 
         self.client.upload(path_in_repo = path_in_repo) 
 
@@ -47,8 +54,10 @@ class Storage  :
 
     def __str__(self):
 
-        return f"""choice : {self.choice}
-Local folder : {self.client.local_folder}"""                
+         return  f'''
+client = {self.choice}
+metadata = {self.client}
+'''                
 
 
 
