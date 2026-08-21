@@ -1,8 +1,19 @@
-
-
 data_ingestion:
+  # Local destination for downloaded raw data. This is relative to the project root.
   root_dir: artifacts/data_ingestion
+
+  # Central Hugging Face Dataset repository.
   repo_id: ACH-2003/acr_fruit
   repo_type: dataset
-  remote_dir: arcfruit/raw
+
+  # Remote path that will preserve the original ACFR dataset root folder.
+  remote_dir: acfr/raw/acfr-fruit-dataset
+
+  # Keep false only when the Hugging Face repository is intentionally public.
   private: false
+
+  # Raw-data contract for the first ingestion stage. No YOLO conversion happens here.
+  expected_fruit_folders:
+    - almonds
+    - apples
+    - mangoes

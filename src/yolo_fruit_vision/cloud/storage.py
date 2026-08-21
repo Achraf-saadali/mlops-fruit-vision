@@ -1,66 +1,46 @@
+"""Storage adapter used by the data-ingestion component."""
 
-from .huggingface_client import HuggingFaceClient
+from __future__ import annotations
 
-from yolo_fruit_vision import logger
+from pathlib import Path
+from typing import Optional
 
-
-
-client_registry =  {
-
-"Hugging_face" : HuggingFaceClient()
-
+from yolo_fruit_vision.cloud.huggingface_client import HuggingFaceClient
+from yolo_fruit_vision.entity.config_entity import DataIngestionConfig
 
 
+class Storage:
+    """Map data-ingestion configuration to Hugging Face storage operations.
 
-}
+    ``config.root_dir`` is used only as a local download destination.
+    An upload source is supplied explicitly because the original ACFR folder can
+    live outside the MLOps repository.
+    """
 
+    def __init__(
+        self,
+        config: DataIngestionConfig,
+        token: Optional[str] = None,
+    ) -> None:
+        self.config = config
+        self.client = HuggingFaceClient(
+            repo_id=config.repo_id,
+            repo_type=config.repo_type,
+            token=token,
+            private=config.private,
+        )
 
-class Storage  :
+    def download(self) -> Path:
+        """Download configured remote raw data into the local artifacts directory."""
+        return self.client.download_folder(
+            remote_dir=self.config.remote_dir,
+            local_root=self.config.root_dir,
+        )
 
-    def __init__(self  ,choice : str = "Hugging_face" , local_folder :str = "",repo_id :str = "")->None :
-
-        self.client = client_registry["Hugging_face"]
-        self.choice = choice
-
-        if local_folder != "":
-            self.client.local_folder = local_folder
-
-        if repo_id != "":
-            self.client.repo_id = repo_id   
-
-
-
-
-
-
-    def download(self , path_in_repo = "")->None  :
-        if path_in_repo == "":
-            logger.fatal(f"Unsuccessfull download : No repository was specified")
-            return None
-        self.client.download(path_in_repo = path_in_repo)
-
-
-    # Choice of data Upload either at raw or processed or interim ...............
-    def upload(self , path_in_repo : str = "")->None  :
-
-        if path_in_repo == "":
-                logger.fatal(f"Unsuccessfull upload : No repository was specified")
-                return None
-                
-
-        self.client.upload(path_in_repo = path_in_repo) 
-
-
-
-    def __str__(self):
-
-         return  f'''
-client = {self.choice}
-metadata = {self.client}
-'''                
-
-
-
-
-          
-
+    def upload(self, source_folder: Path, commit_message: str) -> str:
+        """Upload an explicit local source folder to the configured remote raw path."""
+        return self.client.upload_folder(
+            local_folder=source_folder,
+            path_in_repo=self.config.remote_dir,
+            commit_message=commit_message,
+        )
